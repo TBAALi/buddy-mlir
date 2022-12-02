@@ -16,3 +16,11 @@ bud-print-lower:
 bud-str-attr-lower:
 	@${BUDDY_OPT} ./TestStrAttr.mlir \
 		--lower-bud -o ./log.mlir
+
+bud-vector-config-lower:
+	@${BUDDY_OPT} ./VectorConfig.mlir \
+		--lower-bud -o ./log.mlir
+
+bud-inline-interface-lower:
+	@${BUDDY_OPT} ./TestInlineInterface.mlir \
+		--inline -o ./log.mlir

@@ -21,15 +21,17 @@
 #ifndef INTERFACE_BUDDY_CORE_IMAGECONTAINER
 #define INTERFACE_BUDDY_CORE_IMAGECONTAINER
 
-#include "Interface/buddy/core/Container.h"
 #include <opencv2/opencv.hpp>
 
 // Image container.
 // - T represents the type of the elements.
 // - N represents the number of dimensions.
+// - image represents the OpenCV Mat object.
+// - norm indicates whether to perform normalization, and the normalization is
+//   disabled by default.
 template <typename T, size_t N> class Img : public MemRef<T, N> {
 public:
-  Img(cv::Mat image);
+  Img(cv::Mat image, bool norm = false);
 };
 
 #include "Interface/core/ImageContainer.cpp"

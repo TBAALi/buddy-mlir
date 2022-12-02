@@ -27,7 +27,7 @@
 #include <numeric>
 #include <stdexcept>
 
-#include "Interface/buddy/core/Container.h"
+#include "buddy/core/Container.h"
 
 // MemRef Shape Constructor.
 // Construct a MemRef object from the data shape and initial value.
@@ -39,6 +39,21 @@ MemRef<T, N>::MemRef(intptr_t sizes[N], T init) {
   }
   setStrides();
   size = product(sizes);
+  allocated = new T[size];
+  aligned = allocated;
+  std::fill(aligned, aligned + size, init);
+}
+
+template <typename T, std::size_t N>
+MemRef<T, N>::MemRef(std::vector<size_t> sizes, T init) {
+  if (sizes.size() != N) {
+    throw std::runtime_error("Invalid number of dimensions.");
+  }
+  for (size_t i = 0; i < N; i++) {
+    this->sizes[i] = sizes[i];
+  }
+  setStrides();
+  size = product(this->sizes);
   allocated = new T[size];
   aligned = allocated;
   std::fill(aligned, aligned + size, init);
@@ -161,7 +176,8 @@ MemRef<T, N> &MemRef<T, N>::operator=(MemRef<T, N> &&other) noexcept {
 // Note that the `allocated` and `aligned` point to the same address, so it is
 // enough to release the space of the `allocated` pointer in the destructor.
 template <typename T, std::size_t N> MemRef<T, N>::~MemRef() {
-  delete[] allocated;
+  if (allocated)
+    delete allocated;
 }
 
 // Get the data pointer.
@@ -191,7 +207,10 @@ template <typename T, std::size_t N> T &MemRef<T, N>::operator[](size_t index) {
 
 // Calculate the stride values for each dimension based on the sizes.
 template <typename T, std::size_t N> void MemRef<T, N>::setStrides() {
+  assert((N > 0) && "Invalid container number of dims");
   strides[N - 1] = 1;
+  if (N < 2)
+    return;
   for (int i = N - 2; i >= 0; i--) {
     strides[i] = strides[i + 1] * sizes[i + 1];
   }
@@ -204,6 +223,27 @@ size_t MemRef<T, N>::product(intptr_t sizes[N]) const {
   for (size_t i = 0; i < N; i++)
     size *= sizes[i];
   return size;
+}
+template <typename T, size_t N>
+MemRef<T, N>::MemRef(std::unique_ptr<T> &uptr, intptr_t *sizes,
+                     intptr_t offset) {
+  if (!uptr)
+    assert(0 && "Taking over an empty unique pointer.");
+  T *data = uptr.release();
+  this->aligned = data;
+  this->allocated = data;
+  this->offset = offset;
+  for (size_t i = 0; i < N; i++) {
+    this->sizes[i] = sizes[i];
+  }
+  setStrides();
+  size = product(sizes);
+}
+template <typename T, size_t N> T *MemRef<T, N>::release() {
+  T *temp = aligned;
+  aligned = nullptr;
+  allocated = nullptr;
+  return temp;
 }
 
 #endif // CORE_CONTAINER_DEF

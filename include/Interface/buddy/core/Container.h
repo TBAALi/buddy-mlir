@@ -21,8 +21,8 @@
 #ifndef INTERFACE_BUDDY_CORE_CONTAINER
 #define INTERFACE_BUDDY_CORE_CONTAINER
 
+#include <cstdint>
 #include <memory>
-#include <stdint.h>
 #include <vector>
 
 // MemRef descriptor.
@@ -33,8 +33,11 @@ template <typename T, size_t N> class MemRef {
 public:
   // Constructor from shape.
   MemRef(intptr_t sizes[N], T init = T(0));
+  MemRef(std::vector<size_t> sizes, T init = T(0));
   // Constructor from data.
   MemRef(const T *data, intptr_t sizes[N], intptr_t offset = 0);
+  // Constructor from a unique_ptr, taking over.
+  MemRef(std::unique_ptr<T> &uptr, intptr_t sizes[N], intptr_t offset = 0);
   // Copy constructor.
   MemRef(const MemRef<T, N> &other);
   // Copy assignment operator.
@@ -58,11 +61,13 @@ public:
   // Get the element at index.
   const T &operator[](size_t index) const;
   T &operator[](size_t index);
+  // release the pointer
+  T *release();
 
 protected:
   // Default constructor.
-  // This constructor is desinged for derived domain-specific constructor.
-  MemRef() {};
+  // This constructor is designed for derived domain-specific constructor.
+  MemRef(){};
   // Set the strides.
   // Computes the strides of the transposed tensor for transpose=true.
   void setStrides();
@@ -73,8 +78,8 @@ protected:
   // The `aligned` and `allocated` members point to the same address, `aligned`
   // member is responsible for handling data, and `allocated` member is
   // resposible for handling the memory space.
-  T *allocated;
-  T *aligned;
+  T *allocated = nullptr;
+  T *aligned = nullptr;
   // Offset.
   intptr_t offset = 0;
   // Shape.

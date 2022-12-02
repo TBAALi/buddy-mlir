@@ -89,7 +89,7 @@ def Bud_TestEnumAttrOp : Bud_Op<"test_enum_attr",
 // Test array attribute in the operation.
 //===----------------------------------------------------------------------===//
 
-def CoordinateArrayAttr : Confined<I64ArrayAttr, [ArrayCount<2>]>;
+def CoordinateArrayAttr : ConfinedAttr<I64ArrayAttr, [ArrayCount<2>]>;
 
 def Bud_TestArrayAttrOp : Bud_Op<"test_array_attr"> {
   let summary = "Test Array Attribute.";
@@ -101,6 +101,22 @@ def Bud_TestArrayAttrOp : Bud_Op<"test_array_attr"> {
 
   let assemblyFormat =
       "$base attr-dict `:` type($base) `,` type($result)";
+}
+
+//===----------------------------------------------------------------------===//
+// Vector Config Operation Demo
+//===----------------------------------------------------------------------===//
+
+def Bud_VectorConfigOp : Bud_Op<"vector_config"> {
+  let summary = "Vector Config Operation Demo.";
+  let arguments = (ins AnyVector:$mask,
+                       AnyInteger:$vl
+                  );
+  let results = (outs AnyType:$result);
+  let regions = (region AnyRegion:$region);
+
+  let assemblyFormat = "$mask `,` $vl attr-dict `:` type($mask) `,` type($vl) "
+      "$region `:` type($result)";
 }
 
 #endif // BUD_BUDOPS_TD

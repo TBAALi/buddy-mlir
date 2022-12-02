@@ -20,12 +20,12 @@
 #include <iostream>
 
 #include <mlir/Dialect/Affine/IR/AffineOps.h>
-#include <mlir/Dialect/Arithmetic/IR/Arithmetic.h>
+#include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/Linalg/IR/Linalg.h>
 #include <mlir/Dialect/Linalg/Transforms/Transforms.h>
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
-#include <mlir/Dialect/SCF/SCF.h>
+#include <mlir/Dialect/SCF/IR/SCF.h>
 #include <mlir/Dialect/Shape/IR/Shape.h>
 #include <mlir/Dialect/Tensor/IR/Tensor.h>
 #include <mlir/Dialect/Vector/IR/VectorOps.h>
@@ -283,7 +283,7 @@ void PoolingVectorizationPass::runOnOperation() {
 
   ConversionTarget target(*context);
   target
-      .addLegalDialect<arith::ArithmeticDialect, AffineDialect, scf::SCFDialect,
+      .addLegalDialect<arith::ArithDialect, AffineDialect, scf::SCFDialect,
                        memref::MemRefDialect, VectorDialect>();
   target.addLegalOp<ModuleOp, func::FuncOp, func::ReturnOp>();
   target.addLegalOp<linalg::FillOp>();
